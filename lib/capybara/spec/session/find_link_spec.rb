@@ -10,6 +10,18 @@ Capybara::SpecHelper.spec '#find_link' do
     expect(@session.find_link('labore')[:href]).to match %r{/with_simple_html$}
   end
 
+  context 'hidden text in links' do
+    it 'ignores hidden text finding CSS' do
+      expect(@session.find(:css, 'a', text: 'Some of this text is').text).to eq('Some of this text is')
+      expect { @session.find(:css, 'a', text: 'Some of this text is hidden') }.to raise_error(Capybara::ElementNotFound)
+    end
+
+    it 'ignores hidden text finding links' do
+      expect(@session.find_link('Some of this text is').text).to eq('Some of this text is')
+      expect(@session.find_link('Some of this text is', exact: true).text).to eq('Some of this text is')
+    end
+  end
+
   context 'aria_label attribute with Capybara.enable_aria_label' do
     it 'should find when true' do
       Capybara.enable_aria_label = true
